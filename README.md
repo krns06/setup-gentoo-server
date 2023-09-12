@@ -1,8 +1,8 @@
 # setup-gentoo-server
 Gentooサーバを設定するプレイブック。
 # Requirement
-* ターゲットノードのファームウェアはUEFI
-* ansible
+* UEFI(ターゲットノード)
+* ansible(コントロールノード)
 # Usage
 1. playbook.ymlを編集<br>
 必要に応じてvarsの部分を書き換える。デフォルトだとstage3にhardenedでselinuxのものを採用している。またデバイスには/dev/sdaを選んでいる。
@@ -15,5 +15,5 @@ Gentooサーバを設定するプレイブック。
 $ cd このリポジトリのディレクトリ
 $ ansible-playbook -i hosts.yml playbook.yml
 ```
-5. 実行後の設定
+5. 実行後の設定<br>
 設定後はユーザとパスワード、IPを設定する。これは将来自動化予定。
