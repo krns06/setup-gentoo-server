@@ -1,0 +1,43 @@
+- name: Setup Gentoo server
+  hosts: gentoo-servers
+  gather_facts: no
+
+  vars:
+    stage3_url: "https://ftp.jaist.ac.jp/pub/Linux/Gentoo/releases/amd64/autobuilds/current-admincd-amd64/stage3-amd64-hardened-selinux-openrc-20230910T170211Z.tar.xz"
+    device_name: "/dev/sda"
+
+  tasks:
+    - name: Setup partition
+      shell: "sgdisk -Z && sgdisk -n 1::+512M -n 2:: -t 1:ef00 {{device_name}}"
+
+    - name: Setup filesystem
+      shell: "mkfs.fat -F32 {{device_name}}1 && mkfs  -t xfs {{device_name}}2 && mount {{device_name}}2 /mnt/gentoo"
+
+    - name: Setup stage3
+      shell: 
+        cmd: "(ls /mnt/gentoo/*stage3-amd64*.tar.xz || wget {{stage3_url}}) && (tar xpvf *stage3-amd64*.tar.xz --numeric-owner && rm *stage3-amd64*.tar.xz)"
+        chdir: /mnt/gentoo
+      ignore_errors: yes
+
+    - name: Copy make.conf
+      copy:
+        src: ./make.conf
+        dest: /mnt/gentoo/etc/portage/make.conf
+
+    - name: Copy package.license
+      copy:
+        src: ./package.license
+        dest: /mnt/gentoo/etc/portage/package.license
+
+    - name: Setup before chroot
+      shell: "mirrorselect -o >> /mnt/gentoo/etc/portage/make.conf && mkdir -p /mnt/gentoo/etc/portage/repos.conf && cp /mnt/gentoo/usr/share/portage/config/repos.conf /mnt/gentoo/etc/portage/repos.conf/gentoo.conf && cp --dereference /etc/resolv.conf /mnt/gentoo/etc/ && mount --types proc /proc /mnt/gentoo/proc && mount --rbind /sys /mnt/gentoo/sys && mount --make-rslave /mnt/gentoo/sys && mount --rbind /dev /mnt/gentoo/dev && mount --make-rslave /mnt/gentoo/dev && mount --bind /run /mnt/gentoo/run && mount --make-slave /mnt/gentoo/run"
+
+    - name: Copy chroot script
+      copy:
+        src: ./chroot.sh
+        dest: /tmp/chroot.sh
+
+    - name: Setup chroot
+      shell: bash /tmp/chroot.sh
+
+

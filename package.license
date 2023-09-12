@@ -1,0 +1,3 @@
+sys-kernel/linux-firmware linux-fw-redistributable
+sys-kernel/linux-firmware @BINARY-REDISTRIBUTABLE
+
