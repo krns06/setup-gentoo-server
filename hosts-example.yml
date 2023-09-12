@@ -1,0 +1,9 @@
+all:
+  vars:
+    ansible_user: root
+    ansible_password: Password
+ 
+  children:
+    gentoo-servers:
+      hosts:
+        hoge.hoge.hoge
